@@ -3,7 +3,7 @@ module github.com/traust-security/traust-cli
 go 1.26.8
 
 require (
-	github.com/charmbracelet/bubbles v1.0.0
+	github.com/charmbracelet/bubbles/v2 v2.2.1
 	github.com/charmbracelet/bubbletea v1.3.10
 	github.com/charmbracelet/glamour v1.0.0
 	github.com/charmbracelet/huh v1.0.0
