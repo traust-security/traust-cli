@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"charm.land/lipgloss/v2"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -189,15 +190,15 @@ var runsCmd = &cobra.Command{
 		}
 		if runsJSON {
 			out, _ := json.MarshalIndent(infos, "", "  ")
-			fmt.Println(string(out))
+			lipgloss.Fprintln(os.Stdout, string(out))
 			return
 		}
 		if len(infos) == 0 {
-			fmt.Println(theme.Default().Muted.Render("no runs yet — start one: traust-cli run <skill> [args…]"))
+			lipgloss.Fprintln(os.Stdout, theme.Default().Muted.Render("no runs yet — start one: traust-cli run <skill> [args…]"))
 			return
 		}
 		styles := theme.Default()
-		fmt.Printf("  %-14s %-24s %-12s %-10s %s\n", styles.Label.Render("RUN"), styles.Label.Render("SKILL"), styles.Label.Render("STATE"), styles.Label.Render("AGE"), styles.Label.Render("TOKENS"))
+		lipgloss.Fprintf(os.Stdout, "  %-14s %-24s %-12s %-10s %s\n", styles.Label.Render("RUN"), styles.Label.Render("SKILL"), styles.Label.Render("STATE"), styles.Label.Render("AGE"), styles.Label.Render("TOKENS"))
 		for _, r := range infos {
 			stateStyle := styles.OK
 			switch r.State {
@@ -216,7 +217,7 @@ var runsCmd = &cobra.Command{
 			if r.Tokens.In+r.Tokens.Out > 0 {
 				tokens = fmt.Sprintf("in %dk out %dk", r.Tokens.In/1000, r.Tokens.Out/1000)
 			}
-			fmt.Printf("  %-14s %-24s %-12s %-10s %s\n",
+			lipgloss.Fprintf(os.Stdout, "  %-14s %-24s %-12s %-10s %s\n",
 				tui.Truncate(shortRunID(r.ID), 14, "…"),
 				tui.Truncate(r.Skill, 24, "…"),
 				stateStyle.Render(r.State), age, tokens)

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"charm.land/lipgloss/v2"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -9,7 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/charmbracelet/huh"
+	"charm.land/huh/v2"
 	"github.com/spf13/cobra"
 
 	"github.com/traust-security/traust-cli/internal/api"
@@ -180,7 +181,7 @@ func executeRun(state *bootstrap.State, skill *catalog.Skill, args []string) {
 		if !interactive || runFlags.detach {
 			if runFlags.json {
 				out, _ := json.MarshalIndent(map[string]string{"run_id": runID}, "", "  ")
-				fmt.Println(string(out))
+				lipgloss.Fprintln(os.Stdout, string(out))
 			} else {
 				printStarted(runID)
 			}
@@ -215,7 +216,7 @@ func executeRun(state *bootstrap.State, skill *catalog.Skill, args []string) {
 
 	if runFlags.json {
 		out, _ := json.MarshalIndent(res, "", "  ")
-		fmt.Println(string(out))
+		lipgloss.Fprintln(os.Stdout, string(out))
 	} else {
 		// The summary prints after the monitor too: artifacts, journal
 		// location and the failure reason must not vanish with the TUI.
@@ -247,12 +248,12 @@ func printRunSummary(res *runner.RunResult) {
 		kv("budget", fmt.Sprintf("%s band · cap %d output tokens", res.BudgetBand, res.BudgetCap))
 	}
 	if res.HarnessError != "" {
-		fmt.Println()
-		fmt.Println(styles.Err.Render("harness error:"))
-		fmt.Println(indent(wrapBlock(res.HarnessError, tui.TerminalWidth()-4), "  "))
+		lipgloss.Fprintln(os.Stdout)
+		lipgloss.Fprintln(os.Stdout, styles.Err.Render("harness error:"))
+		lipgloss.Fprintln(os.Stdout, indent(wrapBlock(res.HarnessError, tui.TerminalWidth()-4), "  "))
 	}
 	if len(res.Artifacts) > 0 {
-		fmt.Println()
+		lipgloss.Fprintln(os.Stdout)
 		for _, a := range res.Artifacts {
 			mark := styles.OK.Render("✓")
 			if !a.Valid {
@@ -262,13 +263,13 @@ func printRunSummary(res *runner.RunResult) {
 			if a.Rendered != "" {
 				extra = styles.Muted.Render(" (rendered → " + a.Rendered + ")")
 			}
-			fmt.Println(tui.Wrap(mark+" "+a.Path+extra, tui.TerminalWidth()))
+			lipgloss.Fprintln(os.Stdout, tui.Wrap(mark+" "+a.Path+extra, tui.TerminalWidth()))
 		}
 	}
 	if res.ResultText != "" {
-		fmt.Println()
-		fmt.Println(styles.Muted.Render("final message:"))
-		fmt.Println(indent(tui.Wrap(res.ResultText, tui.TerminalWidth()-4), "  "))
+		lipgloss.Fprintln(os.Stdout)
+		lipgloss.Fprintln(os.Stdout, styles.Muted.Render("final message:"))
+		lipgloss.Fprintln(os.Stdout, indent(tui.Wrap(res.ResultText, tui.TerminalWidth()-4), "  "))
 	}
 }
 
@@ -297,7 +298,7 @@ func indent(s, prefix string) string {
 
 // warnNote prints a wrapped warning to stderr.
 func warnNote(msg string) {
-	fmt.Fprintln(os.Stderr, tui.Wrap(theme.Default().Warn.Render("warning: "+msg), tui.TerminalWidth()))
+	lipgloss.Fprintln(os.Stderr, tui.Wrap(theme.Default().Warn.Render("warning: "+msg), tui.TerminalWidth()))
 }
 
 // plainSink prints run updates as styled plain text (non-TTY or --no-monitor).

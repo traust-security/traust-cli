@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"charm.land/lipgloss/v2"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -60,16 +61,16 @@ func stopRun(info *RunInfo) {
 		return
 	}
 	if waitForResult(info.Dir, 15*time.Second) {
-		fmt.Println(theme.Default().OK.Render("▸ run cancelled — result written"))
+		lipgloss.Fprintln(os.Stdout, theme.Default().OK.Render("▸ run cancelled — result written"))
 		return
 	}
-	fmt.Println(theme.Default().Warn.Render("› graceful cancel did not finish — sending SIGTERM"))
+	lipgloss.Fprintln(os.Stdout, theme.Default().Warn.Render("› graceful cancel did not finish — sending SIGTERM"))
 	syscall.Kill(info.PID, syscall.SIGTERM)
 	if waitForResult(info.Dir, 10*time.Second) {
-		fmt.Println(theme.Default().OK.Render("▸ run cancelled — result written"))
+		lipgloss.Fprintln(os.Stdout, theme.Default().OK.Render("▸ run cancelled — result written"))
 		return
 	}
-	fmt.Println(theme.Default().Err.Render("✗ worker did not stop — sending SIGKILL (no result will be written; the run will show as orphaned)"))
+	lipgloss.Fprintln(os.Stdout, theme.Default().Err.Render("✗ worker did not stop — sending SIGKILL (no result will be written; the run will show as orphaned)"))
 	syscall.Kill(info.PID, syscall.SIGKILL)
 }
 
@@ -112,7 +113,7 @@ func runLogs(cmd *cobra.Command, args []string) {
 	if err != nil {
 		fatalf(1, "no journal at %s: %v", stream, err)
 	}
-	fmt.Println(styles.Muted.Render("journal: " + stream))
+	lipgloss.Fprintln(os.Stdout, styles.Muted.Render("journal: "+stream))
 	events := newKeyedRenderer(os.Stdout)
 	for _, line := range splitLines(string(data)) {
 		if it, ok := journalLineToItem(line); ok {
@@ -122,7 +123,7 @@ func runLogs(cmd *cobra.Command, args []string) {
 			case tui.ItemRaw:
 				events.Flush()
 				if it.Text != "" {
-					fmt.Println(tui.Wrap(styles.Muted.Render("  "+it.Text), tui.TerminalWidth()))
+					lipgloss.Fprintln(os.Stdout, tui.Wrap(styles.Muted.Render("  "+it.Text), tui.TerminalWidth()))
 				}
 			}
 		}
@@ -161,7 +162,7 @@ func runResult(cmd *cobra.Command, args []string) {
 	}
 	if info.State == stateRunning {
 		styles := theme.Default()
-		fmt.Println(styles.Accent.Render(fmt.Sprintf("run %s is still running — `traust-cli attach %s` to watch it", info.ID, shortRunID(info.ID))))
+		lipgloss.Fprintln(os.Stdout, styles.Accent.Render(fmt.Sprintf("run %s is still running — `traust-cli attach %s` to watch it", info.ID, shortRunID(info.ID))))
 		return
 	}
 	printResultFromDir(info.Dir)

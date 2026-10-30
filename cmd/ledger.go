@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"fmt"
+	"charm.land/lipgloss/v2"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -34,7 +34,7 @@ var ledgerWhoamiCmd = &cobra.Command{
 		if err != nil {
 			fatalf(1, "whoami: %v", err)
 		}
-		fmt.Println(out)
+		lipgloss.Fprintln(os.Stdout, out)
 	},
 }
 
@@ -51,7 +51,7 @@ var ledgerFindingsCmd = &cobra.Command{
 		if err != nil {
 			fatalf(1, "findings: %v", err)
 		}
-		fmt.Println(out)
+		lipgloss.Fprintln(os.Stdout, out)
 	},
 }
 
@@ -64,7 +64,7 @@ var ledgerLayersCmd = &cobra.Command{
 		if err != nil {
 			fatalf(1, "layers: %v", err)
 		}
-		fmt.Println(out)
+		lipgloss.Fprintln(os.Stdout, out)
 	},
 }
 
@@ -78,7 +78,7 @@ var ledgerVerifyCmd = &cobra.Command{
 		if err != nil {
 			fatalf(1, "verify: %v", err)
 		}
-		fmt.Println(out)
+		lipgloss.Fprintln(os.Stdout, out)
 	},
 }
 

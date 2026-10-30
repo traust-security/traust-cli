@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"charm.land/lipgloss/v2"
 	"context"
 	"fmt"
 	"os"
@@ -99,7 +100,7 @@ func runInit(cmd *cobra.Command, args []string) {
 	}
 
 	log := func(format string, a ...any) {
-		fmt.Println(tui.Wrap(styles.Accent.Render(fmt.Sprintf(format, a...)), tui.TerminalWidth()))
+		lipgloss.Fprintln(os.Stdout, tui.Wrap(styles.Accent.Render(fmt.Sprintf(format, a...)), tui.TerminalWidth()))
 	}
 
 	state, err := bootstrap.Init(ctx, bootstrap.InitOptions{
@@ -122,11 +123,11 @@ func runInit(cmd *cobra.Command, args []string) {
 	kv("config home", state.ConfigHome)
 	kv("default harness", state.Harness)
 
-	fmt.Println()
-	fmt.Println(styles.OK.Render("Next steps:"))
-	fmt.Println("  traust-cli doctor                       verify the install end to end")
-	fmt.Println("  traust-cli skills                       browse the catalog and run a skill")
-	fmt.Println("  traust-cli run threat-model <repo>      first audit: threat model a repository")
+	lipgloss.Fprintln(os.Stdout)
+	lipgloss.Fprintln(os.Stdout, styles.OK.Render("Next steps:"))
+	lipgloss.Fprintln(os.Stdout, "  traust-cli doctor                       verify the install end to end")
+	lipgloss.Fprintln(os.Stdout, "  traust-cli skills                       browse the catalog and run a skill")
+	lipgloss.Fprintln(os.Stdout, "  traust-cli run threat-model <repo>      first audit: threat model a repository")
 }
 
 func detectHarnessIDs(ctx context.Context) []string {

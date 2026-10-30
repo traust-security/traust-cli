@@ -183,3 +183,12 @@ Initial implementation.
   step_finish, and claude's thinking blocks and system bookkeeping
   (thinking-token estimates) are mapped or silenced instead of leaking
   as raw JSON. Recognized-but-ignored protocol events no longer print.
+- Migrated the TUI stack to charmbracelet v2 (bubbletea, bubbles,
+  lipgloss, huh, glamour — now under charm.land/v2 module paths).
+  View() returns tea.View with alt-screen and mouse mode on the view
+  instead of program options; viewport dimensions moved behind
+  SetWidth/SetHeight; KeyMsg became the KeyPressMsg concrete type.
+  Lipgloss v2 renders full-fidelity ANSI unconditionally, so every
+  styled print goes through the profile-aware lipgloss writers —
+  non-TTY output is stripped exactly as it was on v1, verified both
+  ways (TTY keeps color, pipes stay plain).

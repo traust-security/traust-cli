@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	"charm.land/lipgloss/v2"
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 
@@ -22,7 +24,7 @@ var updateCmd = &cobra.Command{
 			fatalf(1, "%v", err)
 		}
 		log := func(format string, a ...any) {
-			fmt.Println(theme.Default().Accent.Render(fmt.Sprintf(format, a...)))
+			lipgloss.Fprintln(os.Stdout, theme.Default().Accent.Render(fmt.Sprintf(format, a...)))
 		}
 		state, err = bootstrap.Update(ctx, state, updateVersion, log)
 		if err != nil {

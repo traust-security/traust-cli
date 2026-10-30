@@ -1,8 +1,8 @@
 package cmd
 
 import (
+	"charm.land/lipgloss/v2"
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -76,9 +76,9 @@ func runReport(cmd *cobra.Command, args []string) {
 				if res.ExitCode != 0 {
 					mark = styles.Err.Render("✗")
 				}
-				fmt.Printf("  %s lint %s\n", mark, f)
+				lipgloss.Fprintf(os.Stdout, "  %s lint %s\n", mark, f)
 				if res.ExitCode != 0 {
-					fmt.Println(indent(strings.TrimSpace(res.Output()), "      "))
+					lipgloss.Fprintln(os.Stdout, indent(strings.TrimSpace(res.Output()), "      "))
 				}
 				continue
 			}
@@ -90,9 +90,9 @@ func runReport(cmd *cobra.Command, args []string) {
 			if res.ExitCode != 0 {
 				mark = styles.Err.Render("✗")
 			}
-			fmt.Printf("  %s validate %s\n", mark, f)
+			lipgloss.Fprintf(os.Stdout, "  %s validate %s\n", mark, f)
 			if res.ExitCode != 0 {
-				fmt.Println(indent(strings.TrimSpace(res.Output()), "      "))
+				lipgloss.Fprintln(os.Stdout, indent(strings.TrimSpace(res.Output()), "      "))
 				continue
 			}
 		}
@@ -103,10 +103,10 @@ func runReport(cmd *cobra.Command, args []string) {
 				fatalf(1, "render: %v", err)
 			}
 			if res.ExitCode == 0 {
-				fmt.Printf("  %s render %s\n", styles.OK.Render("✓"), out)
+				lipgloss.Fprintf(os.Stdout, "  %s render %s\n", styles.OK.Render("✓"), out)
 			} else {
-				fmt.Printf("  %s render %s\n", styles.Err.Render("✗"), f)
-				fmt.Println(indent(strings.TrimSpace(res.Output()), "      "))
+				lipgloss.Fprintf(os.Stdout, "  %s render %s\n", styles.Err.Render("✗"), f)
+				lipgloss.Fprintln(os.Stdout, indent(strings.TrimSpace(res.Output()), "      "))
 			}
 		}
 	}

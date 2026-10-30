@@ -101,13 +101,13 @@ func updateOSV(ctx context.Context, binDir string, state *bootstrap.State, log L
 	// build-time stub): fake names fail deps.dev resolution, which makes
 	// osv-scanner exit 127 even though the DB download succeeded.
 	stubs := map[string]string{
-		"requirements.txt":  "requests==2.20.0\n",
-		"go.mod":            "module example.com/m\ngo 1.21\nrequire github.com/gin-gonic/gin v1.6.0\n",
-		"package-lock.json": `{"name":"s","version":"1.0.0","lockfileVersion":3,"requires":true,"packages":{"":{"name":"s","version":"1.0.0","dependencies":{"lodash":"4.17.20"}},"node_modules/lodash":{"version":"4.17.20","resolved":"https://registry.npmjs.org/lodash/-/lodash-4.17.20.tgz","integrity":"sha512-x"}}}` + "\n",
-		"pom.xml":           "<project><modelVersion>4.0.0</modelVersion><groupId>a</groupId><artifactId>b</artifactId><version>1</version><dependencies><dependency><groupId>org.apache.logging.log4j</groupId><artifactId>log4j-core</artifactId><version>2.14.0</version></dependency></dependencies></project>\n",
-		"Gemfile.lock":      "GEM\n  remote: https://rubygems.org/\n  specs:\n    rack (2.0.5)\n\nPLATFORMS\n  ruby\n\nDEPENDENCIES\n  rack\n",
-		"Cargo.lock":        "[[package]]\nname = \"time\"\nversion = \"0.1.42\"\n",
-		"composer.lock":     `{"packages":[{"name":"guzzlehttp/guzzle","version":"6.5.0"}],"packages-dev":[]}` + "\n",
+		"requirements.txt":   "requests==2.20.0\n",
+		"go.mod":             "module example.com/m\ngo 1.21\nrequire github.com/gin-gonic/gin v1.6.0\n",
+		"package-lock.json":  `{"name":"s","version":"1.0.0","lockfileVersion":3,"requires":true,"packages":{"":{"name":"s","version":"1.0.0","dependencies":{"lodash":"4.17.20"}},"node_modules/lodash":{"version":"4.17.20","resolved":"https://registry.npmjs.org/lodash/-/lodash-4.17.20.tgz","integrity":"sha512-x"}}}` + "\n",
+		"pom.xml":            "<project><modelVersion>4.0.0</modelVersion><groupId>a</groupId><artifactId>b</artifactId><version>1</version><dependencies><dependency><groupId>org.apache.logging.log4j</groupId><artifactId>log4j-core</artifactId><version>2.14.0</version></dependency></dependencies></project>\n",
+		"Gemfile.lock":       "GEM\n  remote: https://rubygems.org/\n  specs:\n    rack (2.0.5)\n\nPLATFORMS\n  ruby\n\nDEPENDENCIES\n  rack\n",
+		"Cargo.lock":         "[[package]]\nname = \"time\"\nversion = \"0.1.42\"\n",
+		"composer.lock":      `{"packages":[{"name":"guzzlehttp/guzzle","version":"6.5.0"}],"packages-dev":[]}` + "\n",
 		"packages.lock.json": `{"version":1,"dependencies":{".NETCoreApp,Version=v6.0":{"Newtonsoft.Json":{"type":"Direct","requested":"12.0.0","resolved":"12.0.0","contentHash":"x"}}}}` + "\n",
 	}
 	for name, content := range stubs {

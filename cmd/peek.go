@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"charm.land/lipgloss/v2"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -39,11 +40,11 @@ func runPeek(cmd *cobra.Command, args []string) {
 
 	// Runs first, then flows — a peek is equally valid on either.
 	if info, err := resolveRun(state.RunsDir(), args[0]); err == nil {
-		fmt.Print(peekRun(info))
+		lipgloss.Fprint(os.Stdout, peekRun(info))
 		return
 	}
 	if m, err := resolveFlowE(flowsDir(state.Workspace), args[0]); err == nil {
-		fmt.Print(peekFlow(m, state.RunsDir()))
+		lipgloss.Fprint(os.Stdout, peekFlow(m, state.RunsDir()))
 		return
 	}
 	fatalf(1, "no run or flow matches %q — see `traust-cli runs` / `traust-cli flow status`", args[0])

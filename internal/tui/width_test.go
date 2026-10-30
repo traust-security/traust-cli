@@ -6,9 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
-	"github.com/muesli/termenv"
+	"charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 
 	"github.com/traust-security/traust-cli/internal/views"
 )
@@ -85,7 +84,6 @@ func TestWrapRespectsWidth(t *testing.T) {
 func TestWrapPreservesANSI(t *testing.T) {
 	// The test process has no TTY: force a color profile so Render emits
 	// real escapes.
-	lipgloss.SetColorProfile(termenv.TrueColor)
 	styled := lipgloss.NewStyle().Foreground(lipgloss.Color("#EE0000")).Render(strings.Repeat("red ", 20))
 	wrapped := Wrap(styled, 12)
 	// A hard wrapper does not re-emit styles on continuation lines; the
@@ -102,7 +100,6 @@ func TestWrapPreservesANSI(t *testing.T) {
 }
 
 func TestTruncate(t *testing.T) {
-	lipgloss.SetColorProfile(termenv.TrueColor)
 	styled := lipgloss.NewStyle().Bold(true).Render(strings.Repeat("x", 50))
 	got := Truncate(styled, 10, "…")
 	if w := lipgloss.Width(got); w > 10 {
@@ -145,7 +142,7 @@ func TestMonitorHeaderFitsNarrowTerminals(t *testing.T) {
 		m := newMonitor(MonitorHeader{Skill: "secure-code-audit", Harness: "claude", Model: "rits/zai-org/glm-5-3", BudgetCap: 1000000}, nil, width, 30)
 		m.tokensIn, m.tokensOut = 123456, 654321
 		out := m.View()
-		for _, line := range strings.Split(strings.TrimRight(out, "\n"), "\n") {
+		for _, line := range strings.Split(strings.TrimRight(out.Content, "\n"), "\n") {
 			if w := lipgloss.Width(line); w > width {
 				t.Errorf("width %d: view has a %d-cell line: %q", width, w, line)
 			}
@@ -170,7 +167,7 @@ func TestReportTableRebuildsOnResize(t *testing.T) {
 		t.Fatalf("update returned %T", updated)
 	}
 	out := m2.View()
-	for _, line := range strings.Split(strings.TrimRight(out, "\n"), "\n") {
+	for _, line := range strings.Split(strings.TrimRight(out.Content, "\n"), "\n") {
 		if w := lipgloss.Width(line); w > 50 {
 			t.Errorf("width 50: view has a %d-cell line: %q", w, line)
 		}

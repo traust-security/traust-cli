@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/charmbracelet/bubbles/viewport"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/viewport"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 
 	"github.com/traust-security/traust-cli/internal/harness"
 	"github.com/traust-security/traust-cli/internal/theme"
@@ -85,7 +85,7 @@ type monitorLine struct {
 const armWindow = 6 * time.Second
 
 func newMonitor(header MonitorHeader, stop func(), width, height int) monitorModel {
-	vp := viewport.New(width-2, height-8)
+	vp := viewport.New(viewport.WithWidth(width-2), viewport.WithHeight(height-8))
 	started := header.StartedAt
 	if started.IsZero() {
 		started = time.Now()
@@ -142,11 +142,11 @@ func (m monitorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
-		m.viewport.Width = msg.Width - 2
-		m.viewport.Height = msg.Height - 8
+		m.viewport.SetWidth(msg.Width - 2)
+		m.viewport.SetHeight(msg.Height - 8)
 		m.rebuild()
 		return m, nil
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch msg.String() {
 		case "ctrl+c", "q", "d", "esc":
 			// Detach: the run keeps going in its own process. This is the
@@ -271,7 +271,7 @@ func (m *monitorModel) upsertLine(key, line string) {
 // lines re-flow instead of staying clipped to whatever the width was when
 // they arrived.
 func (m *monitorModel) rebuild() {
-	width := m.viewport.Width
+	width := m.viewport.Width()
 	if width < 4 {
 		width = 4
 	}
@@ -283,7 +283,7 @@ func (m *monitorModel) rebuild() {
 	m.viewport.GotoBottom()
 }
 
-func (m monitorModel) View() string {
+func (m monitorModel) View() tea.View {
 	var b strings.Builder
 
 	elapsed := time.Since(m.started).Round(time.Second)
@@ -356,7 +356,9 @@ func (m monitorModel) View() string {
 	}
 	b.WriteString(m.styles.Muted.Render(footer))
 	b.WriteString("\n")
-	return b.String()
+	v := tea.NewView(b.String())
+	v.AltScreen = true
+	return v
 }
 
 func (m monitorModel) budgetBar(out, cap int64, width int) string {
@@ -392,7 +394,10 @@ func (m monitorModel) budgetBar(out, cap int64, width int) string {
 // quits the monitor without touching the run; cancelling (x twice) invokes
 // stop. The returned bool reports whether the run completed while attached.
 func Attach(header MonitorHeader, follow <-chan MonitorItem, stop func()) (bool, error) {
-	return attachProgram(header, follow, stop, tea.WithAltScreen(), tea.WithMouseCellMotion())
+	// bubbletea v2 moved alt-screen and mouse mode onto the View: the
+	// monitor's View() sets AltScreen, and cell-motion mouse scrolling is
+	// requested the same way (kept off here; the viewport scrolls by keys).
+	return attachProgram(header, follow, stop)
 }
 
 // attachProgram is Attach with injectable program options (tests feed a

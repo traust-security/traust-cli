@@ -3,7 +3,9 @@
 // through lipgloss.
 package theme
 
-import "github.com/charmbracelet/lipgloss"
+import "image/color"
+
+import "charm.land/lipgloss/v2"
 
 // Red Hat design system color tokens (ux.redhat.com). Hex values are the
 // published dark-theme-compatible tokens.
@@ -34,8 +36,8 @@ const (
 
 // Palette exposes the raw colors for components that build their own styles.
 var Palette = struct {
-	Red, Blue, Green, Orange, Yellow, Cyan, Purple lipgloss.Color
-	Background, Surface, Muted, Text               lipgloss.Color
+	Red, Blue, Green, Orange, Yellow, Cyan, Purple color.Color
+	Background, Surface, Muted, Text               color.Color
 }{
 	Red:        lipgloss.Color(RedHatRed),
 	Blue:       lipgloss.Color(Blue),

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"charm.land/lipgloss/v2"
 	"context"
 	"fmt"
 	"os"
@@ -157,7 +158,7 @@ func attachFlow(flowID string) {
 		}
 		if m.State != stateRunning {
 			printFlowManifest(m)
-			fmt.Println()
+			lipgloss.Fprintln(os.Stdout)
 			if m.State == stateFailed {
 				os.Exit(1)
 			}
@@ -173,12 +174,12 @@ func attachFlow(flowID string) {
 			time.Sleep(300 * time.Millisecond)
 			continue
 		}
-		fmt.Println(styles.Accent.Render(fmt.Sprintf("▸ flow stage: %s (run %s)", stage.Name, shortRunID(stage.RunID))))
+		lipgloss.Fprintln(os.Stdout, styles.Accent.Render(fmt.Sprintf("▸ flow stage: %s (run %s)", stage.Name, shortRunID(stage.RunID))))
 		attachOnce(info)
 		if !resultExists(info.Dir) {
 			// The stage is still going: the user detached.
-			fmt.Println()
-			fmt.Println(styles.OK.Render("▸ detached — the flow continues in the background"))
+			lipgloss.Fprintln(os.Stdout)
+			lipgloss.Fprintln(os.Stdout, styles.OK.Render("▸ detached — the flow continues in the background"))
 			kv("status", "traust-cli flow status "+shortFlowID(flowID))
 			kv("watch", "traust-cli attach "+shortFlowID(flowID))
 			return
@@ -189,8 +190,8 @@ func attachFlow(flowID string) {
 
 func printFlowStarted(id, short string) {
 	styles := theme.Default()
-	fmt.Println()
-	fmt.Println(styles.OK.Render("▸ flow " + id + " started in the background"))
+	lipgloss.Fprintln(os.Stdout)
+	lipgloss.Fprintln(os.Stdout, styles.OK.Render("▸ flow "+id+" started in the background"))
 	kv("status", "traust-cli flow status "+short)
 	kv("watch", "traust-cli attach "+short)
 	kv("stages", "traust-cli runs")
@@ -212,7 +213,7 @@ func runFlowStatus(cmd *cobra.Command, args []string) {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		if os.IsNotExist(err) {
-			fmt.Println(theme.Default().Muted.Render("no flows yet — start one: traust-cli flow full <repo>"))
+			lipgloss.Fprintln(os.Stdout, theme.Default().Muted.Render("no flows yet — start one: traust-cli flow full <repo>"))
 			return
 		}
 		fatalf(1, "%v", err)
@@ -234,7 +235,7 @@ func runFlowStatus(cmd *cobra.Command, args []string) {
 		return manifests[i].CreatedAt > manifests[j].CreatedAt
 	})
 	styles := theme.Default()
-	fmt.Printf("  %-14s %-16s %-10s %s\n", styles.Label.Render("FLOW"), styles.Label.Render("KIND"), styles.Label.Render("STATE"), styles.Label.Render("TARGET"))
+	lipgloss.Fprintf(os.Stdout, "  %-14s %-16s %-10s %s\n", styles.Label.Render("FLOW"), styles.Label.Render("KIND"), styles.Label.Render("STATE"), styles.Label.Render("TARGET"))
 	for _, m := range manifests {
 		stateStyle := styles.OK
 		switch m.State {
@@ -243,7 +244,7 @@ func runFlowStatus(cmd *cobra.Command, args []string) {
 		case stateRunning:
 			stateStyle = styles.Accent
 		}
-		fmt.Printf("  %-14s %-16s %-10s %s\n", shortFlowID(m.ID), m.Flow, stateStyle.Render(m.State), m.Target)
+		lipgloss.Fprintf(os.Stdout, "  %-14s %-16s %-10s %s\n", shortFlowID(m.ID), m.Flow, stateStyle.Render(m.State), m.Target)
 	}
 }
 
@@ -288,12 +289,12 @@ func hasSuffixID(name, prefix string) bool {
 
 func printFlowManifest(m *flowManifest) {
 	styles := theme.Default()
-	fmt.Println()
-	fmt.Println(styles.Header.Render("flow " + m.ID))
+	lipgloss.Fprintln(os.Stdout)
+	lipgloss.Fprintln(os.Stdout, styles.Header.Render("flow "+m.ID))
 	kv("kind", m.Flow)
 	kv("target", m.Target)
 	kv("state", m.State)
-	fmt.Println()
+	lipgloss.Fprintln(os.Stdout)
 	for _, s := range m.Stages {
 		mark := styles.OK.Render("✓")
 		stateStyle := styles.OK
@@ -315,16 +316,16 @@ func printFlowManifest(m *flowManifest) {
 		if s.RunID != "" {
 			line += styles.Muted.Render("  (run " + shortRunID(s.RunID) + ")")
 		}
-		fmt.Println(line)
+		lipgloss.Fprintln(os.Stdout, line)
 		if s.Detail != "" {
-			fmt.Println(styles.Muted.Render("      " + s.Detail))
+			lipgloss.Fprintln(os.Stdout, styles.Muted.Render("      "+s.Detail))
 		}
 		if s.Artifact != "" && s.State == stateDone {
-			fmt.Println(styles.Muted.Render("      artifact: " + s.Artifact))
+			lipgloss.Fprintln(os.Stdout, styles.Muted.Render("      artifact: "+s.Artifact))
 		}
 	}
 	if cur := m.currentStage(); cur != nil && cur.RunID != "" && cur.State == stateRunning {
-		fmt.Println()
-		fmt.Println(styles.Muted.Render("watch: traust-cli attach " + shortRunID(cur.RunID)))
+		lipgloss.Fprintln(os.Stdout)
+		lipgloss.Fprintln(os.Stdout, styles.Muted.Render("watch: traust-cli attach "+shortRunID(cur.RunID)))
 	}
 }
