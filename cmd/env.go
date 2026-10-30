@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	"charm.land/lipgloss/v2"
 	"encoding/json"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -27,12 +29,12 @@ same setup in your own shell:
 		env := state.ChildEnv()
 		if envJSON {
 			out, _ := json.MarshalIndent(env, "", "  ")
-			fmt.Println(string(out))
+			lipgloss.Fprintln(os.Stdout, string(out))
 			return
 		}
 		for _, kv := range env {
 			if strings.HasPrefix(kv, "PATH=") || strings.HasPrefix(kv, "TRAUST_CONFIG_HOME=") || strings.HasPrefix(kv, "HARNESS_BIN_DIR=") {
-				fmt.Printf("export %s\n", quoteEnv(kv))
+				lipgloss.Fprintf(os.Stdout, "export %s\n", quoteEnv(kv))
 			}
 		}
 	},

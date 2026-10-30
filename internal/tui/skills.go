@@ -4,9 +4,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/list"
-	tea "github.com/charmbracelet/bubbletea"
+	"charm.land/bubbles/v2/key"
+	"charm.land/bubbles/v2/list"
+	tea "charm.land/bubbletea/v2"
 
 	"github.com/traust-security/traust-cli/internal/catalog"
 	"github.com/traust-security/traust-cli/internal/theme"
@@ -59,7 +59,7 @@ func (m pickerModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.list.SetSize(msg.Width-4, msg.Height-6)
 		return m, nil
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		if key.Matches(msg, m.list.KeyMap.ForceQuit) {
 			m.quitting = true
 			return m, tea.Quit
@@ -70,12 +70,14 @@ func (m pickerModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m pickerModel) View() string {
+func (m pickerModel) View() tea.View {
 	if m.quitting {
-		return ""
+		return tea.NewView("")
 	}
 	title := m.styles.App.Render(" traust ") + m.styles.Header.Render(" skills")
-	return "\n" + title + "\n" + m.list.View()
+	v := tea.NewView("\n" + title + "\n" + m.list.View())
+	v.AltScreen = true
+	return v
 }
 
 // PickSkill runs the skill picker TUI. It returns the selected skill, or nil
@@ -95,7 +97,7 @@ func PickSkill(skills []*catalog.Skill) (*catalog.Skill, error) {
 	l.AdditionalShortHelpKeys = nil
 	l.AdditionalFullHelpKeys = nil
 
-	p := tea.NewProgram(pickerModel{list: l, skills: skills, styles: styles}, tea.WithAltScreen())
+	p := tea.NewProgram(pickerModel{list: l, skills: skills, styles: styles})
 	out, err := p.Run()
 	if err != nil {
 		return nil, err

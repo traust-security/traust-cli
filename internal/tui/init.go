@@ -1,7 +1,7 @@
 package tui
 
 import (
-	"github.com/charmbracelet/huh"
+	"charm.land/huh/v2"
 )
 
 // InitAnswers is the outcome of the init wizard.

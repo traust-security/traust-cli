@@ -1,9 +1,9 @@
 package cmd
 
 import (
+	"charm.land/lipgloss/v2"
 	"context"
 	"encoding/json"
-	"fmt"
 	"os"
 	"strings"
 
@@ -42,7 +42,7 @@ func runDoctor(cmd *cobra.Command, args []string) {
 	}
 	if doctorJSON {
 		out, _ := json.MarshalIndent(report, "", "  ")
-		fmt.Println(string(out))
+		lipgloss.Fprintln(os.Stdout, string(out))
 	} else {
 		styles := theme.Default()
 		for _, c := range report.Checks {
@@ -50,11 +50,11 @@ func runDoctor(cmd *cobra.Command, args []string) {
 			if !c.OK {
 				mark = styles.Err.Render("✗")
 			}
-			fmt.Printf("  %s %s\n", mark, c.Name)
+			lipgloss.Fprintf(os.Stdout, "  %s %s\n", mark, c.Name)
 			if c.Detail != "" {
 				// Details can be multi-line and long (subprocess output):
 				// normalize the block and wrap it to the terminal width.
-				fmt.Println(styles.Muted.Render(indent(tui.Wrap(strings.TrimSpace(c.Detail), tui.TerminalWidth()-8), "      ")))
+				lipgloss.Fprintln(os.Stdout, styles.Muted.Render(indent(tui.Wrap(strings.TrimSpace(c.Detail), tui.TerminalWidth()-8), "      ")))
 			}
 		}
 	}

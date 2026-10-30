@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/charmbracelet/bubbles/table"
-	"github.com/charmbracelet/bubbles/viewport"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/glamour"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/table"
+	"charm.land/bubbles/v2/viewport"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/glamour/v2"
+	"charm.land/lipgloss/v2"
 
 	"github.com/traust-security/traust-cli/internal/theme"
 	"github.com/traust-security/traust-cli/internal/views"
@@ -53,7 +53,7 @@ func newReportModel(rep *views.Report, width, height int) reportModel {
 	}
 	m.sorted = sorted
 
-	m.viewport = viewport.New(width-4, height-10)
+	m.viewport = viewport.New(viewport.WithWidth(width-4), viewport.WithHeight(height-10))
 	m.buildTable()
 	m.buildRenderer()
 	return m
@@ -136,12 +136,12 @@ func (m reportModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
-		m.viewport.Width = maxInt(msg.Width-4, 20)
-		m.viewport.Height = maxInt(msg.Height-10, 3)
+		m.viewport.SetWidth(maxInt(msg.Width-4, 20))
+		m.viewport.SetHeight(maxInt(msg.Height-10, 3))
 		m.buildTable()
 		m.buildRenderer()
 		return m, nil
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch msg.String() {
 		case "q", "ctrl+c":
 			return m, tea.Quit
@@ -189,7 +189,7 @@ func (m *reportModel) renderDetail() {
 	m.viewport.GotoTop()
 }
 
-func (m reportModel) View() string {
+func (m reportModel) View() tea.View {
 	var b strings.Builder
 	counts := m.report.CountsBySeverity()
 	var parts []string
@@ -212,17 +212,20 @@ func (m reportModel) View() string {
 			b.WriteString(m.table.View() + "\n")
 			b.WriteString(m.styles.Muted.Render("↑/↓ select · enter detail · q quit\n"))
 		}
-		return b.String()
+		return tea.NewView(b.String())
 	}
 	frame := lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(theme.Palette.Muted).Padding(0, 1).Render(m.viewport.View())
 	b.WriteString(frame + "\n")
 	b.WriteString(m.styles.Muted.Render("↑/↓ scroll · esc back · q quit\n"))
-	return b.String()
+	v := tea.NewView(b.String())
+	v.AltScreen = true
+	v.MouseMode = tea.MouseModeCellMotion
+	return v
 }
 
 // BrowseReport runs the report browser TUI.
 func BrowseReport(rep *views.Report) error {
-	p := tea.NewProgram(newReportModel(rep, 100, 40), tea.WithAltScreen(), tea.WithMouseCellMotion())
+	p := tea.NewProgram(newReportModel(rep, 100, 40))
 	_, err := p.Run()
 	return err
 }

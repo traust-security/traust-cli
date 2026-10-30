@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"charm.land/lipgloss/v2"
 	"fmt"
 	"os"
 
@@ -40,13 +41,13 @@ harness.`,
 		}
 		rep := catalog.CheckDrift(cat)
 		if len(rep.Missing) == 0 {
-			fmt.Println(theme.Default().OK.Render(fmt.Sprintf("✓ standalone profile in sync with %s (%d skills)", root, len(cat.Skills()))))
+			lipgloss.Fprintln(os.Stdout, theme.Default().OK.Render(fmt.Sprintf("✓ standalone profile in sync with %s (%d skills)", root, len(cat.Skills()))))
 			return
 		}
 		styles := theme.Default()
-		fmt.Println(styles.Err.Render("✗ standalone profile drift:"))
+		lipgloss.Fprintln(os.Stdout, styles.Err.Render("✗ standalone profile drift:"))
 		for _, name := range rep.Missing {
-			fmt.Printf("  - %s: in standalone.yaml but not in the tree\n", name)
+			lipgloss.Fprintf(os.Stdout, "  - %s: in standalone.yaml but not in the tree\n", name)
 		}
 		os.Exit(1)
 	},

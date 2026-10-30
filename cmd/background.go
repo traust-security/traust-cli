@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"charm.land/lipgloss/v2"
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
@@ -110,8 +111,8 @@ func startBackgroundRun(state *bootstrap.State, req runRequest) (string, error) 
 func printStarted(runID string) {
 	styles := theme.Default()
 	short := shortRunID(runID)
-	fmt.Println()
-	fmt.Println(styles.OK.Render("▸ run " + runID + " started in the background"))
+	lipgloss.Fprintln(os.Stdout)
+	lipgloss.Fprintln(os.Stdout, styles.OK.Render("▸ run "+runID+" started in the background"))
 	kv("watch", "traust-cli attach "+short)
 	kv("status", "traust-cli runs")
 	kv("stop", "traust-cli stop "+short)

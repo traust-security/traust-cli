@@ -1,8 +1,8 @@
 package cmd
 
 import (
+	"charm.land/lipgloss/v2"
 	"encoding/json"
-	"fmt"
 	"os"
 	"sort"
 
@@ -76,7 +76,7 @@ func runSkills(cmd *cobra.Command, args []string) {
 
 	if skillsFlags.json {
 		out, _ := json.MarshalIndent(skills, "", "  ")
-		fmt.Println(string(out))
+		lipgloss.Fprintln(os.Stdout, string(out))
 		return
 	}
 
@@ -105,21 +105,21 @@ func runSkills(cmd *cobra.Command, args []string) {
 	width := tui.TerminalWidth()
 	avail := width - 2
 	if avail < 28+15+11+3+20 {
-		fmt.Printf("  %-28s %-15s %-11s\n", styles.Label.Render("SKILL"), styles.Label.Render("STAGE"), styles.Label.Render("MIN MODEL"))
+		lipgloss.Fprintf(os.Stdout, "  %-28s %-15s %-11s\n", styles.Label.Render("SKILL"), styles.Label.Render("STAGE"), styles.Label.Render("MIN MODEL"))
 		for _, s := range skills {
-			fmt.Printf("  %-28s %-15s %-11s\n",
+			lipgloss.Fprintf(os.Stdout, "  %-28s %-15s %-11s\n",
 				tui.Truncate(s.Name, 28, "…"), tui.Truncate(orDash(s.Stage), 15, "…"), minModelOf(s))
 		}
 	} else {
 		descWidth := avail - 28 - 15 - 11 - 3
-		fmt.Printf("  %-28s %-15s %-11s %s\n", styles.Label.Render("SKILL"), styles.Label.Render("STAGE"), styles.Label.Render("MIN MODEL"), styles.Label.Render("DESCRIPTION"))
+		lipgloss.Fprintf(os.Stdout, "  %-28s %-15s %-11s %s\n", styles.Label.Render("SKILL"), styles.Label.Render("STAGE"), styles.Label.Render("MIN MODEL"), styles.Label.Render("DESCRIPTION"))
 		for _, s := range skills {
-			fmt.Printf("  %-28s %-15s %-11s %s\n",
+			lipgloss.Fprintf(os.Stdout, "  %-28s %-15s %-11s %s\n",
 				tui.Truncate(s.Name, 28, "…"), tui.Truncate(orDash(s.Stage), 15, "…"), minModelOf(s), tui.Truncate(s.Description, descWidth, "…"))
 		}
 	}
-	fmt.Println()
-	fmt.Println(styles.Muted.Render("run one: traust-cli run <skill> [args…] --harness <id>"))
+	lipgloss.Fprintln(os.Stdout)
+	lipgloss.Fprintln(os.Stdout, styles.Muted.Render("run one: traust-cli run <skill> [args…] --harness <id>"))
 	os.Exit(0)
 }
 

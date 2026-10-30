@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"charm.land/lipgloss/v2"
 	"fmt"
 	"os"
 	"strings"
@@ -40,7 +41,7 @@ func Execute() {
 	installWrappedUsageTemplate()
 	if err := rootCmd.Execute(); err != nil {
 		styles := theme.Default()
-		fmt.Fprintln(os.Stderr, styles.Err.Render("error: "+err.Error()))
+		lipgloss.Fprintln(os.Stderr, styles.Err.Render("error: "+err.Error()))
 		os.Exit(1)
 	}
 }
@@ -93,14 +94,14 @@ func init() {
 
 // fatalf prints a styled error and exits with the given code.
 func fatalf(code int, format string, args ...any) {
-	fmt.Fprintln(os.Stderr, theme.Default().Err.Render("error: "+fmt.Sprintf(format, args...)))
+	lipgloss.Fprintln(os.Stderr, theme.Default().Err.Render("error: "+fmt.Sprintf(format, args...)))
 	os.Exit(code)
 }
 
 // section prints a section header.
 func section(title string) {
-	fmt.Println()
-	fmt.Println(theme.Default().Header.Render(title))
+	lipgloss.Fprintln(os.Stdout)
+	lipgloss.Fprintln(os.Stdout, theme.Default().Header.Render(title))
 }
 
 // kv prints a label/value line, wrapping the value to the terminal width.
@@ -111,7 +112,7 @@ func kv(label, value string) {
 	if width < 20 {
 		width = 20
 	}
-	fmt.Printf("  %s %s\n", styles.Label.Render(pad(label)), tui.Wrap(value, width))
+	lipgloss.Fprintf(os.Stdout, "  %s %s\n", styles.Label.Render(pad(label)), tui.Wrap(value, width))
 }
 
 func pad(s string) string {

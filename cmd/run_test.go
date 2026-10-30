@@ -4,14 +4,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/charmbracelet/lipgloss"
-	"github.com/muesli/termenv"
+	"charm.land/lipgloss/v2"
 
 	"github.com/traust-security/traust-cli/internal/harness"
 )
 
 func TestWrapBlockStripsIndentationAndWraps(t *testing.T) {
-	lipgloss.SetColorProfile(termenv.TrueColor)
 	block := "exit status 3\n          ERROR  Agent processing failed: 401 Unauthorized invalid x-api-key      \n"
 	out := wrapBlock(block, 40)
 
@@ -41,7 +39,6 @@ func TestWrapBlockPreservesNewlines(t *testing.T) {
 }
 
 func TestPlainSinkWritesToProvidedWriter(t *testing.T) {
-	lipgloss.SetColorProfile(termenv.TrueColor)
 
 	var buf strings.Builder
 	sink := newPlainSink(&buf)

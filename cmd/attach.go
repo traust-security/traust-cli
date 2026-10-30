@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"charm.land/lipgloss/v2"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -86,7 +87,7 @@ func attachOnce(info *RunInfo) {
 // plainAttach is the non-TTY tail: replay + follow until the run finishes.
 func plainAttach(info *RunInfo) {
 	styles := theme.Default()
-	fmt.Println(styles.Accent.Render(fmt.Sprintf("▸ attaching to %s (%s) — Ctrl-C detaches", info.ID, info.State)))
+	lipgloss.Fprintln(os.Stdout, styles.Accent.Render(fmt.Sprintf("▸ attaching to %s (%s) — Ctrl-C detaches", info.ID, info.State)))
 	events := newKeyedRenderer(os.Stdout)
 	items := make(chan tui.MonitorItem, 128)
 	go func() {
@@ -99,14 +100,14 @@ func plainAttach(info *RunInfo) {
 		case tui.ItemRaw:
 			events.Flush()
 			if it.Text != "" {
-				fmt.Println(tui.Wrap(styles.Muted.Render("  "+it.Text), tui.TerminalWidth()))
+				lipgloss.Fprintln(os.Stdout, tui.Wrap(styles.Muted.Render("  "+it.Text), tui.TerminalWidth()))
 			}
 		case tui.ItemProgress:
 			events.Flush()
-			fmt.Println(tui.Wrap(styles.Accent.Render("› "+it.Text), tui.TerminalWidth()))
+			lipgloss.Fprintln(os.Stdout, tui.Wrap(styles.Accent.Render("› "+it.Text), tui.TerminalWidth()))
 		case tui.ItemDone:
 			events.Flush()
-			fmt.Println(styles.Muted.Render("— run complete —"))
+			lipgloss.Fprintln(os.Stdout, styles.Muted.Render("— run complete —"))
 		}
 	}
 	events.Flush()
@@ -243,8 +244,8 @@ func printAttachExit(info *RunInfo) {
 		printResultFromDir(info.Dir)
 		return
 	}
-	fmt.Println()
-	fmt.Println(styles.OK.Render("▸ detached — the run continues in the background"))
+	lipgloss.Fprintln(os.Stdout)
+	lipgloss.Fprintln(os.Stdout, styles.OK.Render("▸ detached — the run continues in the background"))
 	kv("re-attach", "traust-cli attach "+short)
 	kv("result", "traust-cli result "+short)
 }
