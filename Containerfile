@@ -5,7 +5,7 @@
 # go-toolset is the RHEL9 builder image; its Go patch level must stay at or
 # above the go directive in go.mod (1.26.8), which is why this tag is pinned to
 # a patch release rather than the rolling 1.26 minor.
-FROM registry.access.redhat.com/ubi9/go-toolset:1.26.10-1793294290@sha256:cab9089469c52029e4d8a4e9f717e87c51ab22eed448ebcada101b811f97dfe7 AS build
+FROM registry.access.redhat.com/ubi9/go-toolset:1.26.10-1793736700@sha256:c2bd0309bf78ae317024fdfc5602a31704e0dba9572f6d4b0bd4b681033dc965 AS build
 
 # The s2i base image runs as uid 1001; the build stage only has to write to its
 # own workdir and module cache, so it does not need that runtime identity.
