@@ -57,7 +57,7 @@ refuse band hit.`,
 
 func init() {
 	rootCmd.AddCommand(runCmd)
-	runCmd.Flags().StringVar(&runFlags.harnessID, "harness", "", "agent harness (claude, codex, pi, opencode, crush, goose; default: state default)")
+	runCmd.Flags().StringVar(&runFlags.harnessID, "harness", "", "agent harness (claude, codex, pi, omp, opencode, crush, goose; default: state default)")
 	runCmd.Flags().StringVar(&runFlags.model, "model", "", "model override (default: the registry floor for the skill's role)")
 	runCmd.Flags().IntVar(&runFlags.maxTurns, "max-turns", 0, "cap agent turns (0 = harness default)")
 	runCmd.Flags().BoolVar(&runFlags.unsafeFullPermission, "unsafe-full-permission", false, "grant the harness full permission for this run (also settable at init: --full-permission)")
