@@ -48,7 +48,7 @@ all of that, and adds the pieces the harness documents as gaps:
 
 ## Harness support
 
-Priority order: **claude code → codex → pi → opencode → crush → goose**.
+Priority order: **claude code → codex → pi → omp → opencode → crush → goose**.
 Antigravity (agy) is deferred: it has no headless execution path.
 
 | Harness | Headless invocation | Live stream | Usage | Permission posture |
@@ -56,6 +56,7 @@ Antigravity (agy) is deferred: it has no headless execution path.
 | claude | `claude -p --output-format stream-json` | ✓ | ✓ | acceptEdits + the skill's `allowed-tools` (fail-closed); `--unsafe-full-permission` for the rest |
 | codex | `codex exec - --json --output-last-message` | ✓ | ✓ | `workspace-write` sandbox, approvals never |
 | pi | `pi --mode json` | ✓ | ✓ | tool grants mapped onto pi's builtin tools |
+| omp | `omp --mode json -p` | ✓ | ✓ | tool grants mapped onto omp's builtin tools incl. the task/wait subagent facility; `--unsafe-full-permission` auto-approves the coding + subagent toolset; extension/skill/rule discovery, LSP and prewalk model-switching disabled |
 | opencode | `opencode run --format json --auto` | ✓ | ✓ | `--auto` |
 | crush | `crush server` (client mode): workspace + SSE events, clean cancel, reconnect on dropped streams (runs survive connection loss); falls back to `crush run` | ✓ live | ✓ | workspace permission level; unanswered permission/question requests fail closed (exit 2) |
 | goose | `goose run -i - --no-session` (prompt on stdin) | — | — | goose's own configuration; its config is treated as authoritative — `OPENAI_API_KEY`/`OPENAI_HOST` from `~/.config/goose/config.yaml` override ambient values (goose reads the key from the environment only) |
