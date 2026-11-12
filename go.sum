@@ -93,8 +93,8 @@ github.com/spf13/cobra v1.10.2/go.mod h1:7C1pvHqHw5A4vrJfjNwvOdzYu0Gml16OCs2GRiT
 github.com/spf13/pflag v1.0.9/go.mod h1:McXfInJRrz4CZXVZOBLb0bTZqETkiAhM9Iw0y3An2Bg=
 github.com/spf13/pflag v1.0.10 h1:4EBh2KAYBwaONj6b2Ye1GiHfwjqyROoF4RwYO+vPwFk=
 github.com/spf13/pflag v1.0.10/go.mod h1:McXfInJRrz4CZXVZOBLb0bTZqETkiAhM9Iw0y3An2Bg=
-github.com/traust-security/traust-sdk/go v0.22.1-0.20261024031907-8fd9fbd91252 h1:8peWWtyaYZ8sPLAMJW93UXavFSRFpwpM1hkD/WFmId0=
-github.com/traust-security/traust-sdk/go v0.22.1-0.20261024031907-8fd9fbd91252/go.mod h1:zfSW8Vd7ousXpgdySZCJ0R8qxEFieA/xjDIXxrZU5A8=
+github.com/traust-security/traust-sdk/go v0.22.1-0.20261111005613-0e2396cb981d h1:t2iOG5+E/E3lAMzARmSUC8Z9VFTq+5sOVapSIkVSWks=
+github.com/traust-security/traust-sdk/go v0.22.1-0.20261111005613-0e2396cb981d/go.mod h1:AzX1h/Iwz1AJe905oJCHqEKRUUKn4q1/IOVpVmkzzrk=
 github.com/xo/terminfo v1.3.0 h1:KstyePbNW6UaLq9y12+544VK4aTP3Eku/sym3a9+UgQ=
 github.com/xo/terminfo v1.3.0/go.mod h1:lGzkSo8Fe7IRh/w+Gqz7n5mDog4FVXCj3gy/DYTBqio=
 github.com/yuin/goldmark v1.8.7 h1:XT/tNqCIbabh0ln675w4x3dv04kQBKi8NwYqi9IJaxI=

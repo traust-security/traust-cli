@@ -10,7 +10,7 @@ require (
 	charm.land/lipgloss/v2 v2.0.6
 	github.com/charmbracelet/x/ansi v0.11.9
 	github.com/spf13/cobra v1.10.2
-	github.com/traust-security/traust-sdk/go v0.22.1-0.20261024031907-8fd9fbd91252
+	github.com/traust-security/traust-sdk/go v0.22.1-0.20261111005613-0e2396cb981d
 	golang.org/x/term v0.47.0
 	gopkg.in/yaml.v3 v3.0.1
 )
