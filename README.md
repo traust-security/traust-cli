@@ -66,12 +66,15 @@ is opt-in and journaled.
 ## Install
 
 ```bash
-go install github.com/traust-security/traust-cli@latest
+go install github.com/traust-security/traust-cli/cmd/traust-cli@latest
 ```
 
+The only other thing you need is an agent harness you are logged into.
+
+<!-- TODO: reinstate once a release is published:
 or grab a static binary from the [releases](https://github.com/traust-security/traust-cli/releases)
-(linux/macOS/windows, amd64/arm64, checksummed). The only other thing you
-need is an agent harness you are logged into.
+(linux/macOS/windows, amd64/arm64, checksummed).
+-->
 
 Konflux also publishes the same binary as a signed OCI artifact (linux/amd64,
 with an SBOM, provenance and a signature) for air-gapped and platform use:
