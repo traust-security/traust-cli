@@ -133,7 +133,7 @@ func SeverityStyle(styles Styles, severity string) lipgloss.Style {
 		return lipgloss.NewStyle().Foreground(lipgloss.Color(Orange))
 	case "low", "Low", "LOW":
 		return lipgloss.NewStyle().Foreground(lipgloss.Color(Blue))
-	case "none", "info", "Info", "INFO":
+	case "none", "info", "Info", "INFO", "informational", "Informational", "INFORMATIONAL":
 		return lipgloss.NewStyle().Foreground(lipgloss.Color(Cyan))
 	default:
 		return lipgloss.NewStyle().Foreground(lipgloss.Color(TextMuted))

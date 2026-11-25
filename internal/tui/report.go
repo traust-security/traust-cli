@@ -38,7 +38,19 @@ type reportModel struct {
 	tableBuilt bool
 }
 
-var severityOrder = map[string]int{"critical": 0, "high": 1, "medium": 2, "low": 3, "info": 4, "none": 5, "unrated": 6}
+// severityOrder ranks the shared severity enum (report.schema.json: critical, high, medium, low,
+// informational), plus the legacy spellings older reports carry. An unknown value ranks with
+// unrated, never with critical.
+var severityOrder = map[string]int{
+	"critical": 0, "high": 1, "medium": 2, "low": 3, "informational": 4, "info": 4, "none": 5, "unrated": 6,
+}
+
+func severityRank(f views.Finding) int {
+	if rank, ok := severityOrder[strings.ToLower(sevKey(f))]; ok {
+		return rank
+	}
+	return severityOrder["unrated"]
+}
 
 func newReportModel(rep *views.Report, width, height int) reportModel {
 	styles := theme.Default()
@@ -47,7 +59,7 @@ func newReportModel(rep *views.Report, width, height int) reportModel {
 	sorted := make([]views.Finding, len(rep.Findings))
 	copy(sorted, rep.Findings)
 	for i := 1; i < len(sorted); i++ {
-		for j := i; j > 0 && severityOrder[sevKey(sorted[j])] < severityOrder[sevKey(sorted[j-1])]; j-- {
+		for j := i; j > 0 && severityRank(sorted[j]) < severityRank(sorted[j-1]); j-- {
 			sorted[j], sorted[j-1] = sorted[j-1], sorted[j]
 		}
 	}
@@ -191,9 +203,13 @@ func (m *reportModel) renderDetail() {
 
 func (m reportModel) View() tea.View {
 	var b strings.Builder
-	counts := m.report.CountsBySeverity()
+	// count case-insensitively, so "Informational" and "HIGH" land in their level
+	counts := map[string]int{}
+	for sev, n := range m.report.CountsBySeverity() {
+		counts[strings.ToLower(sev)] += n
+	}
 	var parts []string
-	for _, sev := range []string{"critical", "high", "medium", "low", "info"} {
+	for _, sev := range []string{"critical", "high", "medium", "low", "informational", "info"} {
 		if n := counts[sev]; n > 0 {
 			parts = append(parts, theme.SeverityStyle(m.styles, sev).Render(fmt.Sprintf("%s %d", sev, n)))
 		}
