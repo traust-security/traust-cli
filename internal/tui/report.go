@@ -203,7 +203,11 @@ func (m *reportModel) renderDetail() {
 
 func (m reportModel) View() tea.View {
 	var b strings.Builder
-	counts := m.report.CountsBySeverity()
+	// count case-insensitively, so "Informational" and "HIGH" land in their level
+	counts := map[string]int{}
+	for sev, n := range m.report.CountsBySeverity() {
+		counts[strings.ToLower(sev)] += n
+	}
 	var parts []string
 	for _, sev := range []string{"critical", "high", "medium", "low", "informational", "info"} {
 		if n := counts[sev]; n > 0 {

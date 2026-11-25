@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/traust-security/traust-cli/internal/views"
@@ -28,6 +29,21 @@ func TestInformationalRanksBelowLowAndUnknownLast(t *testing.T) {
 	for i := range want {
 		if got[i] != want[i] {
 			t.Fatalf("sorted %v, want %v", got, want)
+		}
+	}
+}
+
+// The count header counts severities case-insensitively.
+func TestCountHeaderCountsMixedCaseInformational(t *testing.T) {
+	rep := &views.Report{Findings: []views.Finding{
+		{ID: "A", Severity: "Informational"},
+		{ID: "B", Severity: "informational"},
+		{ID: "C", Severity: "HIGH"},
+	}}
+	out := newReportModel(rep, 120, 40).View().Content
+	for _, want := range []string{"informational 2", "high 1"} {
+		if !strings.Contains(out, want) {
+			t.Fatalf("header lacks %q:\n%s", want, out)
 		}
 	}
 }
