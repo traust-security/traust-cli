@@ -77,11 +77,12 @@ Konflux also publishes the same binary as a signed OCI artifact (linux/amd64,
 with an SBOM, provenance and a signature) for air-gapped and platform use:
 
 ```bash
-podman run --rm quay.io/redhat-user-workloads/source-code-intelligence-tenant/traust/traust-cli:latest --version
+podman run --rm quay.io/traust-security/traust-cli:latest --version
 ```
 
 See [docs/konflux.md](docs/konflux.md) for digest pinning, extracting the
-binary out of the image, and the build and version contract.
+binary out of the image, the Konflux release mirror setup, and the build and
+version contract.
 
 A second, **self-contained, air-gap-ready image** (`Containerfile.toolkit-plus-feeds`,
 published as `traust-cli-toolkit-plus-feeds`) bakes every runtime dependency
@@ -93,7 +94,7 @@ so `traust-cli run` works with only harness credentials injected at runtime, no
 
 ```bash
 podman run --rm -e ANTHROPIC_API_KEY=... -v "$PWD/target:/work:ro,Z" \
-  quay.io/redhat-user-workloads/source-code-intelligence-tenant/traust/traust-cli-toolkit-plus-feeds:latest \
+  quay.io/traust-security/traust-cli-toolkit-plus-feeds:latest \
   run secure-code-audit /work
 ```
 

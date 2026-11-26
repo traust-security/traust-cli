@@ -11,16 +11,27 @@ copy: every push, every pull request, and every release.
 
 ## What gets published
 
-`quay.io/redhat-user-workloads/source-code-intelligence-tenant/traust/traust-cli`
+Both images follow the standard Konflux build → release flow:
+
+| Stage | Slim (`traust-cli`) | Self-contained (`traust-cli-toolkit-plus-feeds`) | Access |
+|---|---|---|---|
+| Build output (`.tekton/`) | `quay.io/redhat-user-workloads/source-code-intelligence-tenant/traust/traust-cli` | `quay.io/redhat-user-workloads/source-code-intelligence-tenant/traust/traust-cli-toolkit-plus-feeds` | private (tenant) |
+| Red Hat managed release (`rhtap-releng-tenant/traust`) | `quay.io/redhat-services-prod/source-code-intelligence-tenant/traust/traust-cli` | `quay.io/redhat-services-prod/source-code-intelligence-tenant/traust/traust-cli-toolkit-plus-feeds` | private (Red Hat) |
+| Community mirror (`traust-cli-quay-mirror`) | `quay.io/traust-security/traust-cli` | `quay.io/traust-security/traust-cli-toolkit-plus-feeds` | public (once provisioned) |
 
 | Tag | Produced by | Notes |
 |---|---|---|
-| `on-pr-<sha>` | pull-request build | expires after 5 days |
-| `<sha>` | push to `main` | immutable per commit |
-| `latest` | push to `main` | **rewritten every build — pin digests** |
-| release tag | release pipeline, from `org.opencontainers.image.version` | cannot disagree with the embedded version |
+| `on-pr-<sha>` | pull-request build (build repo only) | expires after 5 days |
+| `<sha>` / `<short-sha>` | release pipelines | immutable per commit |
+| `<digest>` | release pipelines | immutable per manifest digest |
+| `<X.Y.Z>` | release pipelines, from `org.opencontainers.image.version` | stamped from `version.args` — cannot disagree with `--version` |
+| `latest` | release pipelines | **rewritten every release — pin digests** |
 
-The artifact contains exactly one thing at a fixed path: `/traust-cli`, a
+Konflux releases copy images via `cosign copy` (`push-snapshot`), so each
+destination receives the same manifest digest along with Konflux's cosign
+signatures, SLSA provenance attestations, and SBOMs.
+
+The slim artifact contains exactly one thing at a fixed path: `/traust-cli`, a
 statically linked (`CGO_ENABLED=0`) binary set as `ENTRYPOINT`. There is no
 shell, no package manager, and no OS package set, so its only CVE surface is
 the Go module graph — which is what the SBOM describes.
@@ -28,18 +39,94 @@ the Go module graph — which is what the SBOM describes.
 **linux/amd64 only.** macOS, Windows and `arm64` builds come from GitHub
 Releases; do not point `latest` consumers on those platforms at the image.
 
+## Mirroring to `quay.io/traust-security`
+
+Mirroring to `quay.io/traust-security` is Konflux-native: it runs through a
+tenant-managed `ReleasePlan` and `ReleasePlanAdmission`
+(`traust-cli-quay-mirror`) in `source-code-intelligence-tenant` using the
+official `release-service-catalog` `push-to-external-registry` pipeline,
+alongside the existing `traust-releaseplan` → `rhtap-releng-tenant/traust`
+release. Auto-release is scoped to `traust-cli` and
+`traust-cli-toolkit-plus-feeds` via the `updatedComponentIs(...)` CEL
+annotation, and every release is gated by `traust-enterprise-contract-policy`.
+
+The manifests live in `konflux-release-data` under
+`tenants-config/cluster/stone-prod-p02/tenants/source-code-intelligence-tenant/`
+(`traust-cli-quay-mirror.{release-plan,release-plan-admission,service-account,role-binding}.yaml`).
+
+### One-time Quay and cluster prerequisites
+
+Before the first release to `quay.io/traust-security` can succeed:
+
+1. Create three repositories in `quay.io/traust-security`:
+   - `quay.io/traust-security/traust-cli` (**public**)
+   - `quay.io/traust-security/traust-cli-toolkit-plus-feeds` (**public**)
+   - `quay.io/traust-security/traust-cli-release-oci` (**private**; holds
+     short-lived Konflux Trusted Artifacts for the release pipeline, 1d expiry)
+2. Create a Quay robot account in `traust-security` with **write** permission on
+   those three repositories only.
+3. Create the `traust-security-quay-push` secret in
+   `source-code-intelligence-tenant` using **only** that robot account, keyed
+   to `quay.io/traust-security` (not bare `quay.io`, so `select-oci-auth` never
+   collides with the tenant's `quay.io/redhat-user-workloads/...` pull
+   secrets). Rewriting the auth key scopes credential lookup only — it does not
+   restrict the account's Quay permissions, so never log in with a personal or
+   broadly privileged Quay account:
+
+   ```sh
+   (
+     set -e
+     umask 077
+     robot='traust-security+<robot>'
+     case "$robot" in
+       'traust-security+<robot>') echo "replace <robot> with your robot name" >&2; exit 1 ;;
+       traust-security+?*) ;;
+       *) echo "refusing non-robot account: $robot" >&2; exit 1 ;;
+     esac
+     dir="$(mktemp -d)"
+     trap 'rm -rf "$dir"' EXIT
+     podman login --compat-auth-file "$dir/raw.json" -u "$robot" quay.io
+     jq -e --arg robot "$robot" '
+       .auths["quay.io"] as $entry
+       | select(($entry.auth | strings | @base64d | split(":")[0]) == $robot)
+       | {auths: {"quay.io/traust-security": $entry}}
+     ' "$dir/raw.json" > "$dir/scoped.json"
+     oc create secret generic traust-security-quay-push \
+       -n source-code-intelligence-tenant \
+       --type=kubernetes.io/dockerconfigjson \
+       --from-file=.dockerconfigjson="$dir/scoped.json"
+   )
+   ```
+
+   Verify the stored secret identifies only the restricted robot (without
+   printing the token):
+
+   ```sh
+   oc get secret traust-security-quay-push -n source-code-intelligence-tenant -o json \
+     | jq -r '.data[".dockerconfigjson"] | @base64d | fromjson | .auths | to_entries[] | "\(.key): \(.value.auth | @base64d | split(":")[0])"'
+   ```
+
+### Scope
+
+The Konflux `ReleasePlan`/`ReleasePlanAdmission` mirrors **forward releases
+only**: for each Snapshot released after onboarding, `push-snapshot` publishes
+the five tag templates (`{{ oci_version }}`, `latest`, `{{ git_sha }}`,
+`{{ git_short_sha }}`, `{{ digest_sha }}`) plus cosign signatures,
+attestations, and SBOMs. Pre-existing tags in `quay.io/redhat-services-prod`
+are not backfilled.
+
 ## Using it
 
 Run the binary directly (the useful in-image smoke test):
 
 ```bash
-podman run --rm quay.io/redhat-user-workloads/source-code-intelligence-tenant/traust/traust-cli:latest --version
+podman run --rm quay.io/traust-security/traust-cli:latest --version
 ```
 
 Extract the binary onto the host:
 
 ```bash
-img=quay.io/redhat-user-workloads/source-code-intelligence-tenant/traust/traust-cli@sha256:<digest>
+img=quay.io/traust-security/traust-cli@sha256:<digest>
 podman create --name traust-cli-extract "$img"
 podman cp traust-cli-extract:/traust-cli ./traust-cli
 podman rm traust-cli-extract
@@ -118,7 +205,7 @@ podman build --network=none --build-arg CLI_VERSION="$(cat VERSION)" -t traust-c
 ## Verify a published build
 
 ```bash
-img=quay.io/redhat-user-workloads/source-code-intelligence-tenant/traust/traust-cli@sha256:<digest>
+img=quay.io/traust-security/traust-cli@sha256:<digest>
 cosign verify "$img" --key <tenant public key>
 skopeo inspect "$img"
 syft "$img"                                  # Go module SBOM
@@ -151,10 +238,12 @@ databases). `traust-cli run` works out of the box with no external vuln lookups
 — only the agent harness credentials are injected at runtime.
 
 It is built by a separate Konflux Component, `traust-cli-toolkit-plus-feeds`
-(`.tekton/traust-cli-toolkit-plus-feeds-{push,pull-request}.yaml`), and published
-as:
-
+(`.tekton/traust-cli-toolkit-plus-feeds-{push,pull-request}.yaml`), built into
 `quay.io/redhat-user-workloads/source-code-intelligence-tenant/traust/traust-cli-toolkit-plus-feeds`
+and released to both
+`quay.io/redhat-services-prod/source-code-intelligence-tenant/traust/traust-cli-toolkit-plus-feeds`
+(private) and `quay.io/traust-security/traust-cli-toolkit-plus-feeds` (public
+mirror).
 
 The same tag convention and version-stamping contract as the slim image apply.
 
