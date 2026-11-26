@@ -1,7 +1,8 @@
 // Package harness adapts headless agent harness CLIs (Claude Code, Codex,
-// pi, opencode, Crush, goose) behind one interface: build the invocation,
-// parse the event stream. The runner composes prompts from SKILL.md bodies,
-// so no adapter depends on any harness's skill-discovery mechanism.
+// pi, oh-my-pi, opencode, Crush, goose) behind one interface: build the
+// invocation, parse the event stream. The runner composes prompts from
+// SKILL.md bodies, so no adapter depends on any harness's skill-discovery
+// mechanism.
 package harness
 
 import (
@@ -146,7 +147,7 @@ type ModelChecker interface {
 
 // IDs returns the harness priority order.
 func IDs() []string {
-	return []string{"claude", "codex", "pi", "opencode", "crush", "goose"}
+	return []string{"claude", "codex", "pi", "omp", "opencode", "crush", "goose"}
 }
 
 // ErrUnknownHarness is returned for unregistered ids.
@@ -162,6 +163,8 @@ func Get(id string) (Harness, error) {
 		return &Codex{}, nil
 	case "pi":
 		return &Pi{}, nil
+	case "omp", "oh-my-pi", "ohmypi":
+		return &Omp{}, nil
 	case "opencode":
 		return &Opencode{}, nil
 	case "crush":
