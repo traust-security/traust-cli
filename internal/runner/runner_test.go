@@ -550,3 +550,13 @@ func TestPreflightNoRole(t *testing.T) {
 		t.Errorf("preflight = %+v", pf)
 	}
 }
+
+func TestPreflightResolvesTheBackportFixRole(t *testing.T) {
+	skill := testSkill()
+	skill.Name = "backport-fix"
+	skill.Standalone = &catalog.StandaloneInfo{Role: "patch-author", MinModelClass: "mythos"}
+	pf := ResolveModel(context.Background(), &fakeAPI{resolveModel: "patch-floor"}, skill, "")
+	if pf.Role != "patch-author" || pf.Model != "patch-floor" || pf.Warning != "" {
+		t.Errorf("preflight = %+v, want the patch-author floor", pf)
+	}
+}
