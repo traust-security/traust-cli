@@ -68,6 +68,9 @@ skills:
   remediate-finding:
     role: remediation
     min_model_class: mythos
+  backport-fix:
+    role: patch-author
+    min_model_class: mythos
   verify-remediation:
     role: verification-verdict
     min_model_class: mythos

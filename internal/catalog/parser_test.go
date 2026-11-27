@@ -134,3 +134,22 @@ func TestStageNum(t *testing.T) {
 		}
 	}
 }
+
+func TestBackportFixCarriesThePatchAuthorRole(t *testing.T) {
+	root := t.TempDir()
+	writeSkill(t, filepath.Join(root, "harnessing", "7-remediate", "backport-fix"),
+		`name: backport-fix
+description: Cross-release fix propagation`,
+		"Backport.")
+	cat, err := Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	s, ok := cat.ByName("backport-fix")
+	if !ok {
+		t.Fatal("backport-fix not found")
+	}
+	if s.Standalone == nil || s.Standalone.Role != "patch-author" || s.Standalone.MinModelClass != "mythos" {
+		t.Errorf("backport-fix profile = %+v, want role patch-author, min mythos", s.Standalone)
+	}
+}
